@@ -4,8 +4,8 @@ BRIDGE_NAME="dincus_br"
 SUBNET="10.10.155.0/30"
 GATEWAY="10.10.155.2"
 
-IMAGE="dincus:latest"
-CONTAINER="dincus-container"
+IMAGE="ghcr.io/manprint/dincus:1.0.0"
+CONTAINER="dincus"
 CONTAINER_IP="10.10.155.1"
 
 # Definizione delle funzioni
@@ -44,17 +44,17 @@ function up() {
         --ip=${CONTAINER_IP} \
         --restart=always \
         --cgroupns=host \
-	    --pid=host \
+        --pid=host \
         -v /etc/localtime:/etc/localtime:ro \
         -v /lib/modules:/lib/modules:ro \
-		-v $(pwd)/data/incus:/var/lib/incus \
-		-v $(pwd)/data/docker:/var/lib/docker \
-		-v $(pwd)/data/root:/root \
-		-v $(pwd)/data/debian:/home/debian \
-	    -e SETIPTABLES=true \
-	    -e DEFAULT_USER=debian \
-	    -e BIP_ADDRESS="${BIP_ADDRESS:-10.20.30.1/24}" \
-	    -e ENVIRONMENT="${ENVIRONMENT:-dincus-dev}" \
+        -v $(pwd)/data/incus:/var/lib/incus \
+        -v $(pwd)/data/docker:/var/lib/docker \
+        -v $(pwd)/data/root:/root \
+        -v $(pwd)/data/debian:/home/debian \
+        -e SETIPTABLES=true \
+        -e DEFAULT_USER=debian \
+        -e BIP_ADDRESS="${BIP_ADDRESS:-10.20.30.1/24}" \
+        -e ENVIRONMENT="${ENVIRONMENT:-dincus-dev}" \
         ${IMAGE}
 }
 
