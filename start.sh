@@ -4,7 +4,7 @@ BRIDGE_NAME="dincus_br"
 SUBNET="10.10.155.0/30"
 GATEWAY="10.10.155.2"
 
-IMAGE="ghcr.io/manprint/dincus:1.0.0"
+IMAGE="ghcr.io/manprint/dincus:1.0.1"
 CONTAINER="dincus"
 CONTAINER_IP="10.10.155.1"
 
