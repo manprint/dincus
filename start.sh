@@ -38,6 +38,7 @@ function up() {
     docker run -dit \
         --privileged \
         -p 2244:22 \
+        -p 2388:2375 \
         --name=${CONTAINER} \
         --hostname="${CONTAINER}.noc" \
         --network=${CONTAINER}_net \
