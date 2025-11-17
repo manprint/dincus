@@ -1,10 +1,16 @@
 #!/bin/bash
 
-BRIDGE_NAME="dincus_br"
+VT="type=volume"
+VNAME="source"
+VDST="dst"
+VOLUME_OPT="volume-driver=local,volume-opt=type=none,volume-opt=o=bind"
+VLOC="volume-opt=device"
+
+DIND_BRIDGE_NAME="dincus_br"
 SUBNET="10.10.155.0/30"
 GATEWAY="10.10.155.2"
 
-IMAGE="ghcr.io/manprint/dincus:1.0.1"
+IMAGE="fabiop85/dincus:1.0.0"
 CONTAINER="dincus"
 CONTAINER_IP="10.10.155.1"
 
@@ -13,12 +19,12 @@ CONTAINER_IP="10.10.155.1"
 #----------------------------------------
 
 function __mkdir() {
-    mkdir -vp $(pwd)/data/{debian,root,incus,docker}
+    mkdir -vp $(pwd)/data/{home,root,docker,incus}
 }
 
 function __create_network() {
     docker network create \
-        --opt com.docker.network.bridge.name=${BRIDGE_NAME} \
+        --opt com.docker.network.bridge.name=${DIND_BRIDGE_NAME} \
         --driver=bridge \
         --subnet=${SUBNET} \
         --gateway=${GATEWAY} \
@@ -28,6 +34,7 @@ function __create_network() {
 function down() {
     docker stop ${CONTAINER}
     docker rm ${CONTAINER}
+    docker volume rm --force ${CONTAINER}_home_vol ${CONTAINER}_root_vol ${CONTAINER}_docker_vol ${CONTAINER}_incus_vol
     docker network rm ${CONTAINER}_net
 }
 
@@ -45,17 +52,15 @@ function up() {
         --ip=${CONTAINER_IP} \
         --restart=always \
         --cgroupns=host \
-        --pid=host \
-        -v /etc/localtime:/etc/localtime:ro \
-        -v /lib/modules:/lib/modules:ro \
-        -v $(pwd)/data/incus:/var/lib/incus \
-        -v $(pwd)/data/docker:/var/lib/docker \
-        -v $(pwd)/data/root:/root \
-        -v $(pwd)/data/debian:/home/debian \
-        -e SETIPTABLES=true \
-        -e DEFAULT_USER=debian \
-        -e BIP_ADDRESS="${BIP_ADDRESS:-10.20.30.1/24}" \
-        -e ENVIRONMENT="${ENVIRONMENT:-dincus-dev}" \
+        --tmpfs /tmp --tmpfs /run --tmpfs /run/lock --tmpfs /var/run \
+        -v /sys/fs/cgroup:/sys/fs/cgroup \
+        --mount "$VT,$VNAME=${CONTAINER}_home_vol,$VDST=/home,$VOLUME_OPT,$VLOC=$(pwd)/data/home" \
+        --mount "$VT,$VNAME=${CONTAINER}_root_vol,$VDST=/root,$VOLUME_OPT,$VLOC=$(pwd)/data/root" \
+        --mount "$VT,$VNAME=${CONTAINER}_docker_vol,$VDST=/var/lib/docker,$VOLUME_OPT,$VLOC=$(pwd)/data/docker" \
+        --mount "$VT,$VNAME=${CONTAINER}_incus_vol,$VDST=/var/lib/incus,$VOLUME_OPT,$VLOC=$(pwd)/data/incus" \
+        -e DOCKER_BIP="--bip=10.5.10.1/24" \
+        -e DOCKER_TCP_PORT="-H tcp://0.0.0.0:2375" \
+        -e PROMPT_TAG="dincus-cont" \
         ${IMAGE}
 }
 
@@ -64,7 +69,7 @@ function up() {
 # Nota: Non modificare il codice seguente
 
 print_function_list() {
-    declare -F | awk '{print $3}' | grep -v "^print_function_list$\|^error_handler$\|^__"
+    declare -F | awk '{print $3}' | grep -v "^print_functiondincus_list$\|^error_handler$\|^__"
 }
 
 if [ $# -gt 0 ]; then

@@ -2,8 +2,7 @@
 
 ## Releases
 
-- tag v1.0.0 (23/10/2025)
-- tag v1.0.1 (15/11/2025)
+- tag v1.0.0 (17/11/2025)
 
 ## Pull start script
 
