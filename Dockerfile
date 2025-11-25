@@ -8,8 +8,8 @@ RUN apt-get update \
         fuse3 libfuse2 fuse-overlayfs cron git screen iproute2 iptables-persistent \
         gnupg2 htop apt-utils rsync jq zip unzip pixz host make openssl sshpass xz-utils \
         pigz zstd isal autossh mbuffer telnet nmap dnsutils gpg \
-        libsystemd0 dbus kmod incus dnsmasq udev fuse nftables ebtables arptables thin-provisioning-tools  \
-        btrfs-progs lvm2 iptables kmod lsof \
+        libsystemd0 dbus kmod incus dnsmasq udev fuse nftables ebtables arptables \
+        iptables kmod lsof isal \
     && sed -i '/it_IT.UTF-8/s/^# //g' /etc/locale.gen \
     && locale-gen it_IT.UTF-8 \
     && apt-get clean \
@@ -60,7 +60,7 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp
 
-RUN apt-get update && apt-get install -y openssh-server \
+RUN apt-get update && apt-get install --no-install-recommends -y openssh-server \
     && rm -rf /var/lib/apt/lists/* \
     && mkdir /home/debian/.ssh \
     && chown debian:debian /home/debian/.ssh \
@@ -100,14 +100,6 @@ ENV LANG=it_IT.UTF-8 \
 RUN usermod -aG incus-admin debian
 RUN systemctl enable incus
 RUN mkdir -vp /var/log/incus && touch /var/log/incus/incus.log
-
-RUN sed -i 's/Components: main/Components: main contrib non-free non-free-firmware/' /etc/apt/sources.list.d/debian.sources \
-    && apt-get update \
-    && apt-get install -y zfs-dkms zfsutils-linux \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN apt install zfs-dkms zfsutils-linux -y && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 

@@ -4,7 +4,7 @@ Documentation=https://docs.docker.com
 After=network-online.target nss-lookup.target docker.socket firewalld.service containerd.service time-set.target
 Wants=network-online.target containerd.service
 Requires=docker.socket
-StartLimitBurst=3
+StartLimitBurst=5
 StartLimitIntervalSec=60
 
 [Service]
@@ -34,10 +34,6 @@ Delegate=yes
 # kill only the docker process, not all processes in the cgroup
 KillMode=process
 OOMScoreAdjust=-500
-
-# Migliora la robustezza: restart sempre
-StartLimitIntervalSec=0
-StartLimitBurst=0
 
 [Install]
 WantedBy=multi-user.target
