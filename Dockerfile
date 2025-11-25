@@ -8,7 +8,7 @@ RUN apt-get update \
         fuse3 libfuse2 fuse-overlayfs cron git screen iproute2 iptables-persistent \
         gnupg2 htop apt-utils rsync jq zip unzip pixz host make openssl sshpass xz-utils \
         pigz zstd isal autossh mbuffer telnet nmap dnsutils gpg \
-        libsystemd0 dbus kmod incus dnsmasq udev fuse nftables ebtables arptables \
+        libsystemd0 dbus kmod dnsmasq udev fuse nftables ebtables arptables \
         iptables kmod lsof isal \
     && sed -i '/it_IT.UTF-8/s/^# //g' /etc/locale.gen \
     && locale-gen it_IT.UTF-8 \
@@ -37,6 +37,20 @@ RUN systemctl mask systemd-udevd.service \
         sys-kernel-config.mount \
         e2scrub_reap.service \
         e2scrub_all.timer
+
+RUN mkdir -p /etc/apt/keyrings/ && \
+    curl -fsSL https://pkgs.zabbly.com/key.asc -o /etc/apt/keyrings/zabbly.asc
+
+RUN echo "Enabled: yes\n\
+Types: deb\n\
+URIs: https://pkgs.zabbly.com/incus/stable\n\
+Suites: trixie\n\
+Components: main\n\
+Architectures: amd64\n\
+Signed-By: /etc/apt/keyrings/zabbly.asc" > /etc/apt/sources.list.d/zabbly-incus-stable.sources
+
+RUN apt-get update && apt-get install --no-install-recommends -y incus incus-ui-canonical \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN groupadd -g 1000 debian
 RUN useradd -m -s /bin/bash -u 1000 debian -g debian && \
