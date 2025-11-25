@@ -1,0 +1,16 @@
+[Unit]
+Description=Supercronic
+After=network.target
+
+[Service]
+User=debian
+Group=debian
+WorkingDirectory=/home/debian
+ExecStart=/usr/local/bin/supercronic /home/debian/.supercronic/cron
+Restart=always
+RestartSec=5
+StandardOutput=append:/var/log/supercronic-debian.log
+StandardError=append:/var/log/supercronic-debian-error.log
+
+[Install]
+WantedBy=multi-user.target

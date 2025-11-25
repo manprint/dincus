@@ -1,5 +1,7 @@
 FROM debian:trixie AS builder
 
+ARG TARGETARCH
+
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
@@ -39,18 +41,19 @@ RUN systemctl mask systemd-udevd.service \
         e2scrub_all.timer
 
 RUN mkdir -p /etc/apt/keyrings/ && \
-    curl -fsSL https://pkgs.zabbly.com/key.asc -o /etc/apt/keyrings/zabbly.asc
+    curl -fsSL https://pkgs.zabbly.com/key.asc -o /etc/apt/keyrings/zabbly.asc && \
+    cat > /etc/apt/sources.list.d/zabbly-incus-stable.sources <<EOF
+Enabled: yes
+Types: deb
+URIs: https://pkgs.zabbly.com/incus/stable
+Suites: trixie
+Components: main
+Architectures: ${TARGETARCH}
+Signed-By: /etc/apt/keyrings/zabbly.asc
+EOF
 
-RUN echo "Enabled: yes\n\
-Types: deb\n\
-URIs: https://pkgs.zabbly.com/incus/stable\n\
-Suites: trixie\n\
-Components: main\n\
-Architectures: amd64\n\
-Signed-By: /etc/apt/keyrings/zabbly.asc" > /etc/apt/sources.list.d/zabbly-incus-stable.sources
-
-RUN apt-get update && apt-get install --no-install-recommends -y incus incus-ui-canonical \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install --no-install-recommends -y incus incus-ui-canonical && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN groupadd -g 1000 debian
 RUN useradd -m -s /bin/bash -u 1000 debian -g debian && \
@@ -114,6 +117,29 @@ ENV LANG=it_IT.UTF-8 \
 RUN usermod -aG incus-admin debian
 RUN systemctl enable incus
 RUN mkdir -vp /var/log/incus && touch /var/log/incus/incus.log
+
+RUN mkdir -vp /home/debian/.supercronic
+RUN chown debian:debian /home/debian/.supercronic
+RUN mkdir -vp /root/.supercronic
+COPY ./supercronic/cron /home/debian/.supercronic/cron
+COPY ./supercronic/cron /root/.supercronic/cron
+RUN chown debian:debian /home/debian/.supercronic/cron
+
+RUN ARCH=$(uname -m) && \
+    if [ "$ARCH" = "x86_64" ]; then \
+        wget -O /usr/local/bin/supercronic https://github.com/aptible/supercronic/releases/latest/download/supercronic-linux-amd64; \
+    elif [ "$ARCH" = "aarch64" ]; then \
+        wget -O /usr/local/bin/supercronic https://github.com/aptible/supercronic/releases/latest/download/supercronic-linux-arm64; \
+    else \
+        echo "Unsupported architecture: $ARCH"; exit 1; \
+    fi
+RUN chmod +x /usr/local/bin/supercronic
+
+COPY ./supercronic/supercronic-debian.service /etc/systemd/system/supercronic-debian.service
+COPY ./supercronic/supercronic-root.service /etc/systemd/system/supercronic-root.service
+
+RUN systemctl enable supercronic-debian.service
+RUN systemctl enable supercronic-root.service
 
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 

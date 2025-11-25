@@ -20,6 +20,15 @@ push: login
     docker buildx build --platform linux/amd64,linux/arm64 -t fabiop85/dincus:latest -t fabiop85/dincus:1.0.0 --push .
     docker builder rm mybuilder || true
 
+# Test AMD64 and ARM64 buildx
+test_buildx:
+    #!/usr/bin/env bash
+    date=$(date +%Y%m%d)
+    docker builder rm mybuilder || true
+    docker builder create --name mybuilder --use
+    docker buildx build --platform linux/amd64,linux/arm64 -t fabiop85/dincus:test .
+    docker builder rm mybuilder || true
+
 # Docker build local for test
 build_local_amd64:
     #!/usr/bin/env bash

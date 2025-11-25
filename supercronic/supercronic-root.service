@@ -1,0 +1,16 @@
+[Unit]
+Description=Supercronic
+After=network.target
+
+[Service]
+User=root
+Group=root
+WorkingDirectory=/root
+ExecStart=/usr/local/bin/supercronic /root/.supercronic/cron
+Restart=always
+RestartSec=5
+StandardOutput=append:/var/log/supercronic-root.log
+StandardError=append:/var/log/supercronic-root-error.log
+
+[Install]
+WantedBy=multi-user.target
