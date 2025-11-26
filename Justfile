@@ -33,4 +33,4 @@ test_buildx:
 build_local_amd64:
     #!/usr/bin/env bash
     date=$(date +%Y%m%d)
-    docker build -t fabiop85/dincus:latest -t fabiop85/dincus:1.0.0 .
+    docker build -t fabiop85/dincus:amd64-test .

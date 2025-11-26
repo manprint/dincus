@@ -10,7 +10,7 @@ DIND_BRIDGE_NAME="dincus_br"
 SUBNET="10.10.155.0/30"
 GATEWAY="10.10.155.2"
 
-IMAGE="ghcr.io/manprint/dincus:1.0.2"
+IMAGE="ghcr.io/manprint/dincus:1.0.3"
 CONTAINER="dincus"
 CONTAINER_IP="10.10.155.1"
 
@@ -60,6 +60,7 @@ function up() {
         --mount "$VT,$VNAME=${CONTAINER}_incus_vol,$VDST=/var/lib/incus,$VOLUME_OPT,$VLOC=$(pwd)/data/incus" \
         -e DOCKER_BIP="--bip=10.5.10.1/24" \
         -e DOCKER_TCP_PORT="-H tcp://0.0.0.0:2375" \
+        -e DOCKER_STORAGE_TYPE="overlay2" \
         -e PROMPT_TAG="dincus-cont" \
         ${IMAGE}
 }
@@ -69,7 +70,7 @@ function up() {
 # Nota: Non modificare il codice seguente
 
 print_function_list() {
-    declare -F | awk '{print $3}' | grep -v "^print_functiondincus_list$\|^error_handler$\|^__"
+    declare -F | awk '{print $3}' | grep -v "^print_function_list$\|^error_handler$\|^__"
 }
 
 if [ $# -gt 0 ]; then
