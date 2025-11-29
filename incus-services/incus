@@ -1,0 +1,19 @@
+# INCUS_OPTS can be used to pass additional arguments to the daemon
+#
+# Common options include:
+#  --group GROUPNAME    # Group of users that can control Incus
+#  --debug              # Debug mode (noisy)
+#  --verbose            # Verbose mode
+#  --syslog             # Log to syslog
+#  --trace              # Trace mode (very noisy)
+INCUS_OPTS=""
+
+# LXCFS_OPTS can be used to pass additional arguments to the LXCFS daemon
+#
+# Command options include:
+#  --debug              # Run lxcfs with debugging enabled
+#  --enable-cfs         # Enable CPU virtualization via CPU shares
+#  --enable-loadavg     # Enable loadavg virtualization
+#  --enable-pidfd       # Use pidfd for process tracking
+#  --disable-swap       # Disable swap virtualization
+LXCFS_OPTS=""

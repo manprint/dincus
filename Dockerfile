@@ -52,7 +52,7 @@ Architectures: ${TARGETARCH}
 Signed-By: /etc/apt/keyrings/zabbly.asc
 EOF
 
-RUN apt-get update && apt-get install --no-install-recommends -y incus incus-ui-canonical && \
+RUN apt-get update && apt-get install -y incus incus-ui-canonical && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN groupadd -g 1000 debian
@@ -115,8 +115,17 @@ ENV LANG=it_IT.UTF-8 \
     TZ=Europe/Rome
 
 RUN usermod -aG incus-admin debian
-RUN systemctl enable incus
+
+# Setups for Incus services
+RUN mkdir -vp /root/.incus-env
+COPY ./incus-services/incus-lxcfs.service /etc/systemd/system/incus-lxcfs.service
+COPY ./incus-services/incus.service /etc/systemd/system/incus.service
+COPY ./incus-services/incus /root/.incus-env/incus
 RUN mkdir -vp /var/log/incus && touch /var/log/incus/incus.log
+
+# Enable Incus services
+RUN systemctl enable incus-lxcfs
+RUN systemctl enable incus
 
 RUN mkdir -vp /home/debian/.supercronic
 RUN chown debian:debian /home/debian/.supercronic
