@@ -10,7 +10,7 @@ DIND_BRIDGE_NAME="dincus_br"
 SUBNET="10.10.155.0/30"
 GATEWAY="10.10.155.2"
 
-IMAGE="ghcr.io/manprint/dincus:1.0.3"
+IMAGE="ghcr.io/manprint/dincus:1.0.5"
 CONTAINER="dincus"
 CONTAINER_IP="10.10.155.1"
 
@@ -53,7 +53,7 @@ function up() {
         --restart=always \
         --cgroupns=host \
         --tmpfs /tmp --tmpfs /run --tmpfs /run/lock --tmpfs /var/run \
-        -v /sys/fs/cgroup:/sys/fs/cgroup \
+        -v /sys/fs/cgroup:/sys/fs/cgroup -v /dev:/dev -v /lib/modules:/lib/modules:ro \
         --mount "$VT,$VNAME=${CONTAINER}_home_vol,$VDST=/home,$VOLUME_OPT,$VLOC=$(pwd)/data/home" \
         --mount "$VT,$VNAME=${CONTAINER}_root_vol,$VDST=/root,$VOLUME_OPT,$VLOC=$(pwd)/data/root" \
         --mount "$VT,$VNAME=${CONTAINER}_docker_vol,$VDST=/var/lib/docker,$VOLUME_OPT,$VLOC=$(pwd)/data/docker" \

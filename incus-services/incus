@@ -16,4 +16,4 @@ INCUS_OPTS=""
 #  --enable-loadavg     # Enable loadavg virtualization
 #  --enable-pidfd       # Use pidfd for process tracking
 #  --disable-swap       # Disable swap virtualization
-LXCFS_OPTS=""
+LXCFS_OPTS="--enable-cfs --enable-loadavg --enable-pidfd"

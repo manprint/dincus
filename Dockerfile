@@ -7,11 +7,10 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
     && apt-get install -y --no-install-recommends systemd systemd-sysv adduser sudo net-tools tmux byobu locales tree procps \
         curl wget nano iputils-ping apt-transport-https ca-certificates gnupg lsb-release tzdata coreutils util-linux \
-        fuse3 libfuse2 fuse-overlayfs cron git screen iproute2 iptables-persistent \
+        fuse3 libfuse2 fuse-overlayfs cron git screen iproute2 iptables-persistent qemu-system-x86 qemu-utils \
         gnupg2 htop apt-utils rsync jq zip unzip pixz host make openssl sshpass xz-utils \
-        pigz zstd isal autossh mbuffer telnet nmap dnsutils gpg \
+        pigz zstd isal autossh mbuffer telnet nmap dnsutils gpg iptables lsof \
         libsystemd0 dbus kmod dnsmasq udev fuse nftables ebtables arptables \
-        iptables kmod lsof isal \
     && sed -i '/it_IT.UTF-8/s/^# //g' /etc/locale.gen \
     && locale-gen it_IT.UTF-8 \
     && apt-get clean \
@@ -52,7 +51,7 @@ Architectures: ${TARGETARCH}
 Signed-By: /etc/apt/keyrings/zabbly.asc
 EOF
 
-RUN apt-get update && apt-get install -y incus incus-ui-canonical && \
+RUN apt-get update && apt-get install -y incus && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN groupadd -g 1000 debian
