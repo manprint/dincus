@@ -78,7 +78,7 @@ function up() {
         --mount "$VT,$VNAME=${CONTAINER}_docker_vol,$VDST=/var/lib/docker,$VOLUME_OPT,$VLOC=$(pwd)/data/docker" \
         --mount "$VT,$VNAME=${CONTAINER}_incus_vol,$VDST=/var/lib/incus,$VOLUME_OPT,$VLOC=$(pwd)/data/incus" \
         -e DOCKER_BIP="--bip=10.5.10.1/24" \
-        -e DOCKER_TCP_PORT="-H tcp://0.0.0.0:2375" \
+        -e DOCKER_TCP_PORT="-H=tcp://0.0.0.0:2375" \
         -e DOCKER_STORAGE_TYPE="overlay2" \
         -e PROMPT_TAG="dincus-cont" \
         ${IMAGE}
