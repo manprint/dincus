@@ -17,7 +17,7 @@ push: login
     date=$(date +%Y%m%d)
     docker builder rm mybuilder || true
     docker builder create --name mybuilder --use
-    docker buildx build --platform linux/amd64,linux/arm64 -t fabiop85/dincus:latest -t fabiop85/dincus:1.0.7 --push .
+    docker buildx build --platform linux/amd64,linux/arm64 -t fabiop85/dincus:latest -t fabiop85/dincus:1.0.8 --push .
     docker builder rm mybuilder || true
 
 # Test AMD64 and ARM64 buildx
