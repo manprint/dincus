@@ -46,5 +46,4 @@ jobs:
           tags: |
             ghcr.io/${{ steps.repo.outputs.REPO }}:${{ steps.version.outputs.VERSION }}
             ghcr.io/${{ steps.repo.outputs.REPO }}:latest
-          cache-from: type=registry,ref=ghcr.io/${{ steps.repo.outputs.REPO }}:buildcache
-          cache-to: type=registry,ref=ghcr.io/${{ steps.repo.outputs.REPO }}:buildcache,mode=max
+          no-cache: true
