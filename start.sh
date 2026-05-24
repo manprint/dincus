@@ -19,7 +19,7 @@ CONTAINER_IP="10.10.155.1"
 #----------------------------------------
 
 function __mkdir() {
-    mkdir -vp $(pwd)/data/{home,root,docker,incus}
+    mkdir -vp $(pwd)/data/{home,root,docker,containerd,incus}
 }
 
 function __create_network() {
@@ -34,7 +34,7 @@ function __create_network() {
 function down() {
     docker stop ${CONTAINER}
     docker rm ${CONTAINER}
-    docker volume rm --force ${CONTAINER}_home_vol ${CONTAINER}_root_vol ${CONTAINER}_docker_vol ${CONTAINER}_incus_vol
+    docker volume rm --force ${CONTAINER}_home_vol ${CONTAINER}_root_vol ${CONTAINER}_docker_vol ${CONTAINER}_containerd_vol ${CONTAINER}_incus_vol
     docker network rm ${CONTAINER}_net
 }
 
@@ -57,6 +57,7 @@ function up() {
         --mount "$VT,$VNAME=${CONTAINER}_home_vol,$VDST=/home,$VOLUME_OPT,$VLOC=$(pwd)/data/home" \
         --mount "$VT,$VNAME=${CONTAINER}_root_vol,$VDST=/root,$VOLUME_OPT,$VLOC=$(pwd)/data/root" \
         --mount "$VT,$VNAME=${CONTAINER}_docker_vol,$VDST=/var/lib/docker,$VOLUME_OPT,$VLOC=$(pwd)/data/docker" \
+        --mount "$VT,$VNAME=${CONTAINER}_containerd_vol,$VDST=/var/lib/containerd,$VOLUME_OPT,$VLOC=$(pwd)/data/containerd" \
         --mount "$VT,$VNAME=${CONTAINER}_incus_vol,$VDST=/var/lib/incus,$VOLUME_OPT,$VLOC=$(pwd)/data/incus" \
         -e DOCKER_BIP="--bip=10.5.10.1/24" \
         -e DOCKER_TCP_PORT="-H=tcp://0.0.0.0:2375" \

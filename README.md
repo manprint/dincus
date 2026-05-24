@@ -3,15 +3,50 @@
 ## Pull start script
 
 ```
-curl -o start.sh -sSL "https://raw.githubusercontent.com/manprint/dincus/refs/heads/main/start.sh" && \
+curl -o start.sh -sSL "https://raw.githubusercontent.com/manprint/dincus/main/start.sh" && \
 chmod +x start.sh
 ```
 
 or
 
 ```
-wget "https://raw.githubusercontent.com/manprint/dincus/refs/heads/main/start.sh" && \
+wget "https://raw.githubusercontent.com/manprint/dincus/main/start.sh" && \
 chmod +x start.sh
+```
+
+## Pull Compose
+
+Per scaricare `compose.yml` nella directory corrente e creare subito le cartelle
+dei mount point:
+
+```bash
+curl -fsSL "https://raw.githubusercontent.com/manprint/dincus/main/setup.sh" | bash
+```
+
+## Docker Compose
+
+Il file `compose.yaml` replica l'avvio definito in `start.sh`: stessa immagine,
+stesse porte, stessa rete bridge dedicata con IP statico e gli stessi volumi
+`local` con `driver_opts` bind verso `./data`, in modo da preservare il
+popolamento iniziale delle directory del container al primo avvio. In piu
+persiste anche `/var/lib/containerd`, che serve quando Docker usa il
+containerd image store con snapshotter `overlayfs`.
+
+```bash
+mkdir -vp ./data/{home,root,docker,containerd,incus}
+docker compose up -d
+```
+
+Per fermare e rimuovere container e rete:
+
+```bash
+docker compose down
+```
+
+Per replicare anche la rimozione dei volumi fatta da `start.sh down`:
+
+```bash
+docker compose down -v
 ```
 
 ## Extended Start Script
@@ -38,7 +73,7 @@ CONTAINER_IP="10.10.155.1"
 #----------------------------------------
 
 function __mkdir() {
-    mkdir -vp $(pwd)/data/{home,root,docker,incus}
+    mkdir -vp $(pwd)/data/{home,root,docker,containerd,incus}
 }
 
 function __create_network() {
@@ -53,7 +88,7 @@ function __create_network() {
 function down() {
     docker stop ${CONTAINER}
     docker rm ${CONTAINER}
-    docker volume rm --force ${CONTAINER}_home_vol ${CONTAINER}_root_vol ${CONTAINER}_docker_vol ${CONTAINER}_incus_vol
+    docker volume rm --force ${CONTAINER}_home_vol ${CONTAINER}_root_vol ${CONTAINER}_docker_vol ${CONTAINER}_containerd_vol ${CONTAINER}_incus_vol
     docker network rm ${CONTAINER}_net
 }
 
@@ -76,6 +111,7 @@ function up() {
         --mount "$VT,$VNAME=${CONTAINER}_home_vol,$VDST=/home,$VOLUME_OPT,$VLOC=$(pwd)/data/home" \
         --mount "$VT,$VNAME=${CONTAINER}_root_vol,$VDST=/root,$VOLUME_OPT,$VLOC=$(pwd)/data/root" \
         --mount "$VT,$VNAME=${CONTAINER}_docker_vol,$VDST=/var/lib/docker,$VOLUME_OPT,$VLOC=$(pwd)/data/docker" \
+        --mount "$VT,$VNAME=${CONTAINER}_containerd_vol,$VDST=/var/lib/containerd,$VOLUME_OPT,$VLOC=$(pwd)/data/containerd" \
         --mount "$VT,$VNAME=${CONTAINER}_incus_vol,$VDST=/var/lib/incus,$VOLUME_OPT,$VLOC=$(pwd)/data/incus" \
         -e DOCKER_BIP="--bip=10.5.10.1/24" \
         -e DOCKER_TCP_PORT="-H=tcp://0.0.0.0:2375" \

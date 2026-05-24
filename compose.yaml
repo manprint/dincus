@@ -1,0 +1,81 @@
+services:
+  dincus:
+    image: ghcr.io/manprint/dincus:1.0.16
+    container_name: dincus
+    hostname: dincus.noc
+    privileged: true
+    restart: always
+    cgroup: host
+    ports:
+      - "2244:22"
+      - "2388:2375"
+    environment:
+      DOCKER_BIP: --bip=10.5.10.1/24
+      DOCKER_TCP_PORT: -H=tcp://0.0.0.0:2375
+      DOCKER_STORAGE_TYPE: overlay2
+      PROMPT_TAG: dincus-cont
+    tmpfs:
+      - /tmp
+      - /run
+      - /run/lock
+      - /var/run
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup
+      - /dev:/dev
+      - /lib/modules:/lib/modules:ro
+      - dincus_home_vol:/home
+      - dincus_root_vol:/root
+      - dincus_docker_vol:/var/lib/docker
+      - dincus_containerd_vol:/var/lib/containerd
+      - dincus_incus_vol:/var/lib/incus
+    networks:
+      dincus_net:
+        ipv4_address: 10.10.155.1
+
+volumes:
+  dincus_home_vol:
+    name: dincus_home_vol
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/data/home
+  dincus_root_vol:
+    name: dincus_root_vol
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/data/root
+  dincus_docker_vol:
+    name: dincus_docker_vol
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/data/docker
+  dincus_containerd_vol:
+    name: dincus_containerd_vol
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/data/containerd
+  dincus_incus_vol:
+    name: dincus_incus_vol
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${PWD}/data/incus
+
+networks:
+  dincus_net:
+    name: dincus_net
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: dincus_br
+    ipam:
+      config:
+        - subnet: 10.10.155.0/30
+          gateway: 10.10.155.2
