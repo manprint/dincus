@@ -1,6 +1,6 @@
 services:
   dincus:
-    image: ghcr.io/manprint/dincus:1.0.16
+    image: ghcr.io/manprint/dincus:1.0.17
     container_name: dincus
     hostname: dincus.noc
     privileged: true
